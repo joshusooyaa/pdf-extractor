@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdftypes import resolve1
+import json
 
 def main():
   app = QApplication([])
@@ -25,19 +26,27 @@ def main():
   # Show layout
   window.show()
   
-  # Exit
+  # Execute
   app.exec_()
 
 
 def on_clicked():
+  # filenames, _ = QFileDialog.getOpenFileNames(filter="PDF Files (*.pdf)") # for future
   filename, _ = QFileDialog.getOpenFileName(filter="PDF Files (*.pdf)")
   
-  data_to_json(filename)
-  # filenames, _ = QFileDialog.getOpenFileNames(filter="PDF Files (*.pdf)") # for future
+  json_data = data_to_json(filename)
   
+  save_filename, _ = QFileDialog.getSaveFileName(filter="JSON Files (*.json)")
+  
+  if save_filename:
+    with open(save_filename, 'w', encoding='utf-8') as json_file:
+      json_file.write(json_data)
+    
 def data_to_json(filename):
   fp = open(filename, 'rb')
 
+  id = 0
+  data_dict = {}
   parser = PDFParser(fp)
 
   doc = PDFDocument(parser)
@@ -52,9 +61,17 @@ def data_to_json(filename):
     res_field = resolve1(field)
     value = res_field.get('V')
     
-    if value is not None: print(value.decode('utf-8'))
+    if value is not None: data = value.decode('utf-8')
+    if value == None: data = ''
+      
+    data_dict[id] = data
+    id += 1
   
   fp.close()
+  
+  json_object = json.dumps(data_dict, indent=1)
+  return json_object
+  
 
 if __name__ == '__main__':
   main()
