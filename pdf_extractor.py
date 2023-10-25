@@ -30,7 +30,6 @@ fields = resolve1(catalog['AcroForm'])['Fields']
 
 for field in fields:
   res_field = resolve1(field)
-  values = res_field.get('V')
+  value = res_field.get('V')
   
-  if values is not None: print(values.decode('utf-8'))
-  
+  if value is not None: print(value.decode('utf-8'))
