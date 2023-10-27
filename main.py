@@ -2,12 +2,13 @@ from PyQt5.QtWidgets import *
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdftypes import resolve1
+from pdfminer.pdftypes import PDFObjRef
 import json
 
 def main():
   app = QApplication([])
   window = QWidget()
-  window.setWindowTitle("ATFO Form 781 Data Extractor")
+  window.setWindowTitle("PDF Cell Extractor")
   window.setGeometry(0, 0, 500, 500)
   layout = QVBoxLayout()
   
@@ -56,7 +57,10 @@ def data_to_json(filename):
     raise ValueError("No AcroForm Found")
 
   fields = resolve1(catalog['AcroForm'])['Fields']
+  if isinstance(fields, PDFObjRef): # Check to see if we need to resolve fields as well
+    fields = resolve1(fields)
 
+  print(type(fields))
   for field in fields:
     res_field = resolve1(field)
     value = res_field.get('V')
